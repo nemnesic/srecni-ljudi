@@ -1,0 +1,145 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Relationship Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #resultSection .card {
+            min-height: 200px; /* Ensures consistent height */
+        }
+        #resultSection .character-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+        }
+        #relationshipResult {
+            height: 3em; /* Fixed height for text area */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        #resultSection .character-name {
+            text-align: center;
+            font-size: 0.9em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+    <!-- Header -->
+        <header class="text-center mb-4">
+            <h1>Pronalazak Povezanosti Likova</h1>
+            <p class="text-muted">Saznajte kako su vaši omiljeni likovi iz serija Srecni Ljudi povezani.</p>
+        </header>
+
+    <!-- Character Selection Section -->
+    <div class="card p-4 shadow-sm">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="character1" class="form-label">Izaberite lik 1</label>
+                <select class="form-select" id="character1">
+                    <option selected disabled>Izaberite...</option>
+                    <div th:each="character : ${characters}">
+                        <option th:value="${character}" value="1" data-img="https://via.placeholder.com/100" th:text="${character}"></option>
+                    </div>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="character2" class="form-label">Izaberite lik 1</label>
+                <select class="form-select" id="character2">
+                    <option selected disabled>Izaberite...</option>
+                    <div th:each="character : ${characters}">
+                        <option th:value="${character}" value="1" data-img="https://via.placeholder.com/100" th:text="${character}"></option>
+                    </div>
+                </select>
+            </div>
+        </div>
+
+        <!-- Find Relationship Button -->
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" id="findRelationshipBtn">Pronađi vezu</button>
+        </div>
+    </div>
+
+    <!-- Result Display Section -->
+    <div class="mt-4" id="resultSection" style="display: none;">
+        <div class="card p-4 shadow-sm">
+            <h4 class="card-title">Rezultat Povezanosti</h4>
+            <div class="d-flex align-items-center justify-content-around">
+                <!-- Character 1 Image and Name -->
+                <div class="text-center">
+                    <img id="char1Img" src="https://via.placeholder.com/100" alt="Character 1" class="img-thumbnail character-image">
+                    <p id="char1Name" class="character-name mt-2">Lik 1</p>
+                </div>
+
+                <!-- Relationship Description -->
+                <div class="text-center flex-grow-1 mx-3">
+                    <p id="relationshipResult" class="mb-0 text-wrap">Lik 1 je povezan sa likom 2.</p>
+                </div>
+
+                <!-- Character 2 Image and Name -->
+                <div class="text-center">
+                    <img id="char2Img" src="https://via.placeholder.com/100" alt="Character 2" class="img-thumbnail character-image">
+                    <p id="char2Name" class="character-name mt-2">Lik 2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JavaScript for interactivity -->
+<script>
+    document.getElementById('findRelationshipBtn').addEventListener('click', async function () {
+        const char1Select = document.getElementById('character1');
+        const char2Select = document.getElementById('character2');
+
+        const char1 = char1Select.value;
+        const char2 = char2Select.value;
+
+        if (char1 && char2) {
+            // Get selected options
+            const char1Option = char1Select.options[char1Select.selectedIndex];
+            const char2Option = char2Select.options[char2Select.selectedIndex];
+
+            // Get character names and images
+            const char1Name = char1Option.text;
+            const char1Img = char1Option.getAttribute('data-img');
+            const char2Name = char2Option.text;
+            const char2Img = char2Option.getAttribute('data-img');
+
+            // Set the images and names
+            document.getElementById('char1Img').src = char1Img;
+            document.getElementById('char1Name').innerText = char1Name;
+            document.getElementById('char2Img').src = char2Img;
+            document.getElementById('char2Name').innerText = char2Name;
+
+            // Show loading state
+            document.getElementById('relationshipResult').innerText = "Učitavanje veze...";
+            document.getElementById('resultSection').style.display = 'block';
+
+            // Call the API
+            try {
+                const response = await fetch(`http://localhost:8080/find-relationship?char1=${encodeURIComponent(char1)}&char2=${encodeURIComponent(char2)}`);
+                if (response.ok) {
+                    const result = await response.text(); // Assuming the API returns plain text
+                    document.getElementById('relationshipResult').innerText = result;
+                } else {
+                    document.getElementById('relationshipResult').innerText = "Neuspešno preuzimanje povezanosti. Molimo pokušajte ponovo.";
+                }
+            } catch (error) {
+                document.getElementById('relationshipResult').innerText = "Došlo je do greške. Molimo pokušajte ponovo.";
+            }
+        } else {
+            alert('Molimo izaberite oba lika.');
+        }
+    });
+</script>
+</body>
+</html>
