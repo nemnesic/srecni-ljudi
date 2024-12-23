@@ -41,7 +41,7 @@
     <div class="card p-4 shadow-sm">
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="character1" class="form-label">Izaberite lik 1</label>
+                <label for="character1" class="form-label">Izaberite prvog lika</label>
                 <select class="form-select" id="character1">
                     <option selected disabled>Izaberite...</option>
                     <div th:each="character : ${characters}">
@@ -50,7 +50,7 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="character2" class="form-label">Izaberite lik 1</label>
+                <label for="character2" class="form-label">Izaberite drugog lika</label>
                 <select class="form-select" id="character2">
                     <option selected disabled>Izaberite...</option>
                     <div th:each="character : ${characters}">
@@ -102,6 +102,11 @@
 
         const char1 = char1Select.value;
         const char2 = char2Select.value;
+
+        if (char1 === char2) {
+            alert('Molimo izaberite dva različita lika.');
+            return;
+        }
 
         if (char1 && char2) {
             // Get selected options

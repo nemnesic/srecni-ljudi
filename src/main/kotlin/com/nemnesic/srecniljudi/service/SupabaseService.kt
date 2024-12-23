@@ -19,7 +19,7 @@ class SupabaseService(
     private val objectMapper = jacksonObjectMapper()
 
     fun getRelationship(character1: String, character2: String): String? {
-        val url = "$supabaseUrl/rest/v1/relationships?character1=eq.$character1&character2=eq.$character2"
+        val url = "$supabaseUrl/rest/v1/character_relationship?character_1=eq.$character1&character_2=eq.$character2"
         val request = Request.Builder()
             .url(url)
             .header("apikey", supabaseKey)
@@ -43,10 +43,10 @@ class SupabaseService(
     }
 
     fun saveRelationship(character1: String, character2: String, relationship: String?) {
-        val url = "$supabaseUrl/rest/v1/relationships"
+        val url = "$supabaseUrl/rest/v1/character_relationship"
         val payload = mapOf(
-            "character1" to character1,
-            "character2" to character2,
+            "character_1" to character1,
+            "character_2" to character2,
             "relationship" to relationship
         )
         val requestBody = objectMapper.writeValueAsString(payload).toRequestBody("application/json".toMediaType())
