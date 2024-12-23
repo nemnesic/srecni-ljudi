@@ -38,3 +38,26 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+# Compiled files
+*.class
+
+# Logs
+*.log
+/logs/
+
+# Target directory
+/target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Application properties
+/application.properties
+/application.yml
