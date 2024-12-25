@@ -45,7 +45,7 @@
                 <select class="form-select" id="character1">
                     <option selected disabled>Izaberite...</option>
                     <div th:each="character : ${characters}">
-                        <option th:value="${character}" value="1" data-img="https://via.placeholder.com/100" th:text="${character}"></option>
+                        <option th:value="${character.name}" value="1" th:attr="data-img=${character.photo}" th:text="${character.name}"></option>
                     </div>
                 </select>
             </div>
@@ -54,7 +54,7 @@
                 <select class="form-select" id="character2">
                     <option selected disabled>Izaberite...</option>
                     <div th:each="character : ${characters}">
-                        <option th:value="${character}" value="1" data-img="https://via.placeholder.com/100" th:text="${character}"></option>
+                        <option th:value="${character.name}" value="1" th:attr="data-img=${character.photo}" th:text="${character.name}"></option>
                     </div>
                 </select>
             </div>
