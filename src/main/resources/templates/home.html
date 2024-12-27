@@ -15,8 +15,6 @@
             object-fit: cover;
         }
         #relationshipResult {
-            height: 3em; /* Fixed height for text area */
-            text-overflow: ellipsis;
             white-space: nowrap;
         }
         #resultSection .character-name {
@@ -70,15 +68,15 @@
     <div class="mt-4" id="resultSection" style="display: none;">
         <div class="card p-4 shadow-sm">
             <h4 class="card-title">Rezultat Povezanosti</h4>
-            <div class="d-flex align-items-center justify-content-around">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-around">
                 <!-- Character 1 Image and Name -->
-                <div class="text-center">
+                <div class="text-center mb-3 mb-md-0">
                     <img id="char1Img" src="https://via.placeholder.com/100" alt="Character 1" class="img-thumbnail character-image">
                     <p id="char1Name" class="character-name mt-2">Lik 1</p>
                 </div>
 
                 <!-- Relationship Description -->
-                <div class="text-center flex-grow-1 mx-3">
+                <div class="text-center flex-grow-1 mx-3 mb-3 mb-md-0">
                     <p id="relationshipResult" class="mb-0 text-wrap">Lik 1 je povezan sa likom 2.</p>
                 </div>
 

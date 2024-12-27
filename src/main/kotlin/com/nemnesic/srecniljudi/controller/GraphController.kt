@@ -29,6 +29,17 @@ class GraphController(private val graphService: GraphRelationshipService, privat
         }
     }
 
+    @GetMapping("/find-relationship-raw")
+    fun findRelationshipRaw(
+        @RequestParam char1: String,
+        @RequestParam char2: String
+    ): String? {
+        val relationships  = graphService.findRelationship(char1, char2)
+        val userMessage = "Explain how ${char1} and ${char2} are connected. Here is json data of relationships of people they may know: ${relationships.map { it.toJson() }.joinToString("\n")}"
+        println ("User message: $userMessage")
+        return graphService.findRelationship(char1, char2).joinToString { it.toJson() }
+    }
+
 
     @GetMapping("/graph")
     fun getGraph(): String {
