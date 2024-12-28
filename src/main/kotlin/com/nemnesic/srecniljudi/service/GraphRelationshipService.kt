@@ -32,37 +32,31 @@ class RelationshipEdge(var relationship: String = "") : DefaultEdge() {
 @Service
 class GraphRelationshipService(val assistant: Assistant, val supabaseService: SupabaseService) {
 
-    val graph = SimpleGraph<String, RelationshipEdge>(RelationshipEdge::class.java)
+
     val relationships = mutableListOf<Triple<String, String, String>>()
 
     init {
         loadGraphFromCSV("srecni-ljudi-input.csv")
     }
 
+    val graph = SimpleGraph<String, RelationshipEdge>(RelationshipEdge::class.java)
     private fun loadGraphFromCSV(fileName: String) {
-        val csvFile = "src/main/resources/srecni-ljudi-input.csv" // Replace with your CSV file path
-        BufferedReader(FileReader(csvFile)).use { reader ->
+        val csvFile = ClassPathResource("srecni-ljudi-input.csv").inputStream
+        BufferedReader(InputStreamReader(csvFile)).use { reader ->
             reader.readLine() // Skip the header row if there is one
             reader.lineSequence().forEach { line ->
                 val columns = line.split(",")
-                if (columns.size >= 3) {
-                    val char1 = columns[0].trim()
-                    val char2 = columns[1].trim()
-                    val relationship = columns[2].trim()
-                    relationships.add(Triple(char1, char2, relationship))
-                }
-            }
-        }
+                val char1 = columns[0].trim()
+                val char2 = columns[1].trim()
+                val relationship = columns[2].trim()
 
-
-        // Add nodes and edges to the graph
-        for ((char1, char2, relationship) in relationships) {
-            if (relationship != "0") {
-                graph.addVertex(char1)
-                graph.addVertex(char2)
-                val edge = graph.addEdge(char1, char2)
-                if (edge != null) {
-                    edge.relationship = relationship
+                if (relationship != "0") {
+                    graph.addVertex(char1)
+                    graph.addVertex(char2)
+                    val edge = graph.addEdge(char1, char2)
+                    if (edge != null) {
+                        edge.relationship = relationship
+                    }
                 }
             }
         }
@@ -139,7 +133,9 @@ class GraphRelationshipService(val assistant: Assistant, val supabaseService: Su
 
         // Create a narrative description for LLM input
 
-        val userMessage = "Explain how ${char1} and ${char2} are connected. Here is json data of relationships of people they may know: ${relationShips.map { it.toJson() }.joinToString("\n")}"
+        val userMessage = "Explain how ${char1} and ${char2} are connected. Here is json data of relationships of people they may know: ${
+            relationShips.map { it.toJson() }.joinToString("\n")
+        }"
 
         println("User message: $userMessage")
         //return userMessage
