@@ -1,6 +1,6 @@
 # Srecni Ljudi - Character Relationship Finder
 
-This project is a Spring Boot application that helps you find relationships between characters from the TV series "Srecni Ljudi". It uses a CSV file to load character data and their relationships, and provides a web interface to interact with the data.
+A tool to explore and map the intricate relationships between characters in the popular Serbian TV show "Srećni Ljudi". This project leverages advanced algorithms and AI to provide semantic insights into character connections.
 
 You are read more about it in the [medium article](https://medium.com/@nemnesic/discovering-connections-a-tool-to-map-relationships-in-tv-show-sre%C4%87ni-ljudi-972cb03908d8).
 ## Features
