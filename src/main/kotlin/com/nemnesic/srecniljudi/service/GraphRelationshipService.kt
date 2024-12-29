@@ -31,15 +31,11 @@ class RelationshipEdge(var relationship: String = "") : DefaultEdge() {
 
 @Service
 class GraphRelationshipService(val assistant: Assistant, val supabaseService: SupabaseService) {
-
-
-    val relationships = mutableListOf<Triple<String, String, String>>()
-
+    val graph = SimpleGraph<String, RelationshipEdge>(RelationshipEdge::class.java)
     init {
         loadGraphFromCSV("srecni-ljudi-input.csv")
     }
 
-    val graph = SimpleGraph<String, RelationshipEdge>(RelationshipEdge::class.java)
     private fun loadGraphFromCSV(fileName: String) {
         val csvFile = ClassPathResource("srecni-ljudi-input.csv").inputStream
         BufferedReader(InputStreamReader(csvFile)).use { reader ->
@@ -126,31 +122,15 @@ class GraphRelationshipService(val assistant: Assistant, val supabaseService: Su
         }
     }
 
-    fun generateExplanation(char1: String, char2: String, relationShips: List<CharacterRelationship>): String? {
-        if (relationShips.isEmpty()) {
-            return "No connection found."
-        }
-
-        // Create a narrative description for LLM input
-
-        val userMessage = "Explain how ${char1} and ${char2} are connected. Here is json data of relationships of people they may know: ${
-            relationShips.map { it.toJson() }.joinToString("\n")
-        }"
-
-        println("User message: $userMessage")
-        //return userMessage
-        val response = assistant.chat(userMessage)
-
-        supabaseService.saveRelationship(char1, char2, response)
-
-        return response
+    fun generateExplanation(userPrompt: String): String? {
+        return assistant.chat(userPrompt)
     }
 
-    fun findRelationshipAndGenerateExplanation(char1: String, char2: String): String? {
-        findRelationship(char1, char2).let { relationships ->
-            return generateExplanation(char1, char2, relationships)
-        }
 
+    fun generateUserPrompt(char1: String, char2: String, relationShips: List<CharacterRelationship>): String {
+        return "Explain how $char1 and $char2 are connected. Here is json data of relationships of people they may know: ${
+            relationShips.joinToString("\n") { it.toJson() }
+        }"
     }
 
 }

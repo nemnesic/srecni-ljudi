@@ -1,7 +1,9 @@
 package com.nemnesic.srecniljudi.controller
 
+import com.nemnesic.srecniljudi.dto.RelationshipResponse
 import com.nemnesic.srecniljudi.service.GraphRelationshipService
 import com.nemnesic.srecniljudi.service.SupabaseService
+import opennlp.tools.cmdline.ArgumentParser.OptionalParameter
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -15,29 +17,54 @@ import javax.imageio.ImageIO
 class GraphController(private val graphService: GraphRelationshipService, private val supabaseService: SupabaseService) {
 
     @GetMapping("/find-relationship")
-    fun findRelationship(
+    fun getRelationshipResponse(
         @RequestParam char1: String,
-        @RequestParam char2: String
-    ): String? {
-        val savedRelationship = supabaseService.getRelationship(char1, char2)
-        if (savedRelationship != null) {
-            println("Found saved relationship: $savedRelationship")
-            return savedRelationship
-        } else {
-            println("Relationship not found, generating explanation")
-            return graphService.findRelationshipAndGenerateExplanation(char1, char2)
+        @RequestParam char2: String,
+        @OptionalParameter @RequestParam(defaultValue = "true") useCache: Boolean,
+        @OptionalParameter @RequestParam(defaultValue = "true") cacheResponse: Boolean,
+        @OptionalParameter @RequestParam(defaultValue = "true") callChatGpt: Boolean
+    ): RelationshipResponse {
+        val relationships = graphService.findRelationship(char1, char2)
+        if (relationships.isEmpty()) {
+            return RelationshipResponse(
+                character1 = char1,
+                character2 = char2,
+                userPrompt = "-",
+                chatGptResponse = "No connection found.",
+                relationships = emptyList(),
+                cachedResponse = false
+            )
         }
-    }
 
-    @GetMapping("/find-relationship-raw")
-    fun findRelationshipRaw(
-        @RequestParam char1: String,
-        @RequestParam char2: String
-    ): String? {
-        val relationships  = graphService.findRelationship(char1, char2)
-        val userMessage = "Explain how ${char1} and ${char2} are connected. Here is json data of relationships of people they may know: ${relationships.map { it.toJson() }.joinToString("\n")}"
-        println ("User message: $userMessage")
-        return graphService.findRelationship(char1, char2).joinToString { it.toJson() }
+        val userPrompt = graphService.generateUserPrompt(char1, char2, relationships)
+
+        var chatGptResponse: String? = "No connection found."
+
+        var cachedResponse: Boolean = false
+
+        if (callChatGpt) {
+            if (useCache) {
+                chatGptResponse = supabaseService.getRelationship(char1, char2)
+                if (chatGptResponse != null) {
+                    cachedResponse = true
+                } else {
+                    chatGptResponse = graphService.generateExplanation(userPrompt)
+                }
+            }
+        }
+        if (cacheResponse && !cachedResponse) {
+            supabaseService.saveRelationship(char1, char2, chatGptResponse)
+        }
+
+
+        return RelationshipResponse(
+            character1 = char1,
+            character2 = char2,
+            userPrompt = userPrompt,
+            chatGptResponse = chatGptResponse ?: "No connection found.",
+            relationships = relationships,
+            cachedResponse = cachedResponse
+        )
     }
 
 

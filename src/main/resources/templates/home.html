@@ -87,6 +87,14 @@
                 </div>
             </div>
         </div>
+        <h3>
+            <a class="btn btn-link" data-bs-toggle="collapse" href="#rawJsonResponseCollapse" role="button" aria-expanded="false" aria-controls="rawJsonResponseCollapse">
+                Raw JSON Response
+            </a>
+        </h3>
+        <div class="collapse" id="rawJsonResponseCollapse">
+            <pre id="rawJsonResponse"></pre>
+        </div>
     </div>
 </div>
 
@@ -131,8 +139,10 @@
             try {
                 const response = await fetch(`/find-relationship?char1=${encodeURIComponent(char1)}&char2=${encodeURIComponent(char2)}`);
                 if (response.ok) {
-                    const result = await response.text(); // Assuming the API returns plain text
-                    document.getElementById('relationshipResult').innerText = result;
+                    const result = await response.json(); // Parse the response as JSON
+                    document.getElementById('relationshipResult').innerText = result.chatGptResponse; // Extract chatGptResponse
+                    document.getElementById('rawJsonResponse').innerText = JSON.stringify(result, null, 2); // Display raw JSON response
+
                 } else {
                     document.getElementById('relationshipResult').innerText = "Neuspešno preuzimanje povezanosti. Molimo pokušajte ponovo.";
                 }
